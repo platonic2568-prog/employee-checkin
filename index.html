@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>員工旅遊報到系統</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      max-width: 400px;
+      margin: 60px auto;
+      padding: 30px 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px #00000010;
+    }
+    h2 { color: #222; }
+    #status { color: #555; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>員工旅遊報到系統</h2>
+    <p>LINE 身分驗證測試</p>
+    <div id="status">正在連接 LINE...</div>
+  </div>
+
+  <script>
+    async function start() {
+      const status = document.getElementById('status');
+
+      try {
+        await liff.init({
+          liffId: '2012700631-6EXM2Hfo'
+        });
+
+        if (!liff.isLoggedIn()) {
+          status.textContent = 'LINE 尚未登入';
+          return;
+        }
+
+        const profile = await liff.getProfile();
+
+        status.textContent =
+          'LINE 連線成功！使用者：' + profile.displayName;
+      } catch (err) {
+        status.textContent =
+          'LINE 初始化失敗：' + (err.message || String(err));
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
