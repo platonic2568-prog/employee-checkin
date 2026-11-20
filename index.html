@@ -83,6 +83,8 @@ document.getElementById('bindButton').disabled = false;
         
 await loadCheckinStatus();
 
+await loadAdminDashboard();
+
       } catch (err) {
         status.textContent =
           'LINE 初始化失敗：' + (err.message || String(err));
@@ -292,6 +294,76 @@ if (session.isOpen && !session.checkedIn) {
   } catch (error) {
     info.textContent = '報到資料讀取失敗';
     message.textContent = '請重新開啟系統或聯絡管理員';
+  }
+}
+</script>
+
+<div id="adminPanel" style="display:none;max-width:440px;margin:20px auto;padding:20px;background:white;border-radius:16px;">
+  <h2>管理員點名總覽</h2>
+  <p>2026 大阪員工旅遊</p>
+  <div id="adminSessionList"></div>
+  <p id="adminMessage" role="status"></p>
+</div>
+
+<script>
+async function loadAdminDashboard() {
+  const panel = document.getElementById('adminPanel');
+  const list = document.getElementById('adminSessionList');
+  const message = document.getElementById('adminMessage');
+
+  panel.style.display = 'none';
+  list.replaceChildren();
+  message.textContent = '';
+
+  try {
+    const idToken = liff.getIDToken();
+    if (!idToken) return;
+
+    const response = await fetch(
+      'https://employee-checkin-api.platonic2568.workers.dev/admin',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || data.success !== true ||
+        !Array.isArray(data.sessions)) {
+      return;
+    }
+
+    for (const session of data.sessions) {
+      const card = document.createElement('div');
+      card.style.cssText =
+        'padding:16px;margin:12px 0;border:1px solid #ddd;border-radius:12px;text-align:left';
+
+      const title = document.createElement('h3');
+      title.textContent = session.sessionName;
+
+      const counts = document.createElement('p');
+      counts.textContent =
+        '應到 ' + session.total +
+        '｜已到 ' + session.checkedIn +
+        '｜未到 ' + session.notCheckedIn;
+
+      card.append(title, counts);
+
+      for (const employee of session.employees) {
+        const row = document.createElement('p');
+        row.textContent = employee.employeeName +
+          ' — ' + employee.status;
+        card.appendChild(row);
+      }
+
+      list.appendChild(card);
+    }
+
+    panel.style.display = 'block';
+  } catch (error) {
+    console.error('管理員資料查詢失敗');
   }
 }
 </script>
