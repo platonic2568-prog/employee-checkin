@@ -37,10 +37,7 @@
 <div id="apiResult" style="margin-top:15px;"></div>
 
 <div id="bindingForm" style="display:none; margin-top:24px;">
-  <input id="employeeId" type="text"
-    placeholder="請輸入員工編號"
-    autocomplete="off"
-    style="width:100%;box-sizing:border-box;padding:12px;margin-bottom:12px;">
+  
 
   <input id="bindingCode" type="text"
     placeholder="請輸入一次性綁定碼"
@@ -123,11 +120,11 @@ async function testAPI() {
 document.getElementById('bindButton').addEventListener('click', async function () {
   const button = document.getElementById('bindButton');
   const result = document.getElementById('bindingResult');
-  const employeeId = document.getElementById('employeeId').value.trim();
+  
   const bindingCode = document.getElementById('bindingCode').value.trim();
 
-  if (!employeeId || !bindingCode) {
-    result.textContent = '請輸入員工編號及一次性綁定碼';
+  if (!bindingCode) {
+    result.textContent = '請輸入一次性綁定碼';
     return;
   }
 
@@ -154,7 +151,7 @@ document.getElementById('bindButton').addEventListener('click', async function (
         },
         body: JSON.stringify({
           idToken: idToken,
-          employeeId: employeeId,
+          
           bindingCode: bindingCode
         })
       }
