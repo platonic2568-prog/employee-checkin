@@ -16,7 +16,7 @@
     }
     .card {
       max-width: 400px;
-      margin: 60px auto;
+margin: 60px auto;
       padding: 30px 20px;
       background: white;
       border-radius: 16px;
@@ -79,7 +79,10 @@
         status.textContent =
           'LINE 連線成功！使用者：' + profile.displayName;
 document.getElementById('bindingForm').style.display = 'block';
-document.getElementById('bindButton').disabled = false;        
+document.getElementById('bindButton').disabled = false;
+        
+await loadCheckinStatus();
+
       } catch (err) {
         status.textContent =
           'LINE 初始化失敗：' + (err.message || String(err));
@@ -173,6 +176,124 @@ document.getElementById('bindButton').addEventListener('click', async function (
     button.disabled = false;
   }
 });
+</script>
+
+<div id="checkinPanel" style="display:none;max-width:440px;margin:20px auto;padding:20px;background:white;border-radius:16px;">
+  <h2>2026 大阪員工旅遊</h2>
+  <p id="employeeInfo">正在讀取員工資料...</p>
+  <div id="sessionList"></div>
+  <p id="checkinMessage" role="status"></p>
+</div>
+
+<script>
+async function loadCheckinStatus() {
+  const panel = document.getElementById('checkinPanel');
+  const info = document.getElementById('employeeInfo');
+  const list = document.getElementById('sessionList');
+  const message = document.getElementById('checkinMessage');
+
+  panel.style.display = 'block';
+  info.textContent = '正在查詢報到資料...';
+  list.replaceChildren();
+  message.textContent = '';
+
+  try {
+    const idToken = liff.getIDToken();
+    if (!idToken) {
+      throw new Error('無法取得 LINE 登入憑證');
+    }
+
+    const response = await fetch(
+      'https://employee-checkin-api.platonic2568.workers.dev/status',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || data.success !== true) {
+      info.textContent = '尚未取得員工報到資料';
+      message.textContent = data.message || '查詢失敗';
+      return;
+    }
+
+    info.textContent = '員工：' + data.employeeName;
+
+    document.getElementById('bindingForm').style.display = 'none';
+
+    for (const session of data.sessions) {
+      const item = document.createElement('div');
+      item.style.cssText =
+        'padding:16px;margin:12px 0;border:1px solid #ddd;border-radius:12px;text-align:left';
+
+      const name = document.createElement('strong');
+      name.textContent = session.sessionName;
+
+      const status = document.createElement('p');
+      status.textContent = session.checkedIn
+        ? '已報到'
+        : session.isOpen
+          ? '開放報到中'
+          : '尚未開放';
+
+      item.append(name, status);
+      
+if (session.isOpen && !session.checkedIn) {
+  const button = document.createElement('button');
+  button.textContent = '確認報到';
+  button.style.cssText =
+    'width:100%;padding:14px;border:0;border-radius:10px;background:#06c755;color:white;font-size:16px;cursor:pointer';
+
+  button.addEventListener('click', async () => {
+    if (!confirm('確定要完成此場次報到嗎？')) return;
+
+    button.disabled = true;
+    button.textContent = '報到處理中...';
+
+    try {
+      const idToken = liff.getIDToken();
+      if (!idToken) throw new Error('LINE 登入憑證無效');
+
+      const response = await fetch(
+        'https://employee-checkin-api.platonic2568.workers.dev/checkin',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            idToken,
+            sessionId: session.sessionId
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(result.message || '報到失敗');
+      }
+
+      message.textContent = '報到成功：' + session.sessionName;
+      await loadCheckinStatus();
+    } catch (error) {
+      message.textContent = error.message || '報到失敗';
+      button.disabled = false;
+      button.textContent = '確認報到';
+    }
+  });
+
+  item.appendChild(button);
+}
+
+      list.appendChild(item);
+    }
+  } catch (error) {
+    info.textContent = '報到資料讀取失敗';
+    message.textContent = '請重新開啟系統或聯絡管理員';
+  }
+}
 </script>
 
 </body>
