@@ -91,6 +91,28 @@ await loadAdminDashboard();
     }
 
     start();
+    
+let adminRefreshing = false;
+
+setInterval(async () => {
+  const panel = document.getElementById('adminPanel');
+
+  if (
+    document.visibilityState !== 'visible' ||
+    !panel ||
+    panel.style.display !== 'block' ||
+    adminRefreshing
+  ) return;
+
+  adminRefreshing = true;
+
+  try {
+    await loadAdminDashboard();
+  } finally {
+    adminRefreshing = false;
+  }
+}, 10000);
+
   </script>
 
 <script>
