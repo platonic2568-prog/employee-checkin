@@ -338,6 +338,12 @@ async function loadAdminDashboard() {
   const message = document.getElementById('adminMessage');
 
   panel.style.display = 'none';
+  
+const openSessions = new Set(
+  [...list.querySelectorAll('details[open]')]
+    .map(item => item.dataset.sessionId)
+);
+
   list.replaceChildren();
   message.textContent = '';
 
@@ -362,11 +368,15 @@ async function loadAdminDashboard() {
     }
 
     for (const session of data.sessions) {
-      const card = document.createElement('div');
+      const card = document.createElement('details');
+      
+card.dataset.sessionId = session.sessionId;
+card.open = openSessions.has(String(session.sessionId));
+
       card.style.cssText =
         'padding:16px;margin:12px 0;border:1px solid #ddd;border-radius:12px;text-align:left';
 
-      const title = document.createElement('h3');
+      const title = document.createElement('summary');
       title.textContent = session.sessionName;
 
       const counts = document.createElement('p');
