@@ -247,6 +247,8 @@ async function loadCheckinStatus() {
 
     document.getElementById('bindingForm').style.display = 'none';
 
+
+
     for (const session of data.sessions) {
       const item = document.createElement('div');
       item.style.cssText =
@@ -337,14 +339,14 @@ async function loadAdminDashboard() {
   const list = document.getElementById('adminSessionList');
   const message = document.getElementById('adminMessage');
 
-  panel.style.display = 'none';
+  
   
 const openSessions = new Set(
   [...list.querySelectorAll('details[open]')]
     .map(item => item.dataset.sessionId)
 );
 
-  list.replaceChildren();
+  
   message.textContent = '';
 
   try {
@@ -366,7 +368,7 @@ const openSessions = new Set(
         !Array.isArray(data.sessions)) {
       return;
     }
-
+const newList = document.createDocumentFragment();
     for (const session of data.sessions) {
       const card = document.createElement('details');
       
@@ -471,8 +473,10 @@ addEmployeeGroup('已報到名單', checkedIn, '#16A34A');
 addEmployeeGroup('未報到名單', notCheckedIn, '#DC2626');
 
 
-      list.appendChild(card);
+      newList.appendChild(card);
     }
+
+list.replaceChildren(newList);
 
     panel.style.display = 'block';
   } catch (error) {
