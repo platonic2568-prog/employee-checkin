@@ -319,11 +319,16 @@ if (session.isOpen && !session.checkedIn) {
 }
 </script>
 
-<div id="adminPanel" style="display:none;max-width:440px;margin:20px auto;padding:20px;background:white;border-radius:16px;">
-  <h2>管理員點名總覽</h2>
-  <p>2026 大阪員工旅遊</p>
-  <div id="adminSessionList"></div>
-  <p id="adminMessage" role="status"></p>
+
+<div id="adminPanel" style="display:none;max-width:440px;margin:20px auto;padding:16px;background:white;border-radius:16px;">
+  <details id="adminDetails">
+    <summary style="cursor:pointer;font-size:20px;font-weight:bold;padding:8px 0;">
+      管理員點名總覽
+    </summary>
+    <p>2026 大阪員工旅遊</p>
+    <div id="adminSessionList"></div>
+    <p id="adminMessage" role="status"></p>
+  </details>
 </div>
 
 <script>
