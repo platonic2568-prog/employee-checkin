@@ -402,6 +402,12 @@ card.appendChild(controlButton);
         const row = document.createElement('p');
         row.textContent = employee.employeeName +
           ' — ' + employee.status;
+        
+row.style.color =
+  employee.status === '未報到' ? '#DC2626' :
+  employee.status === '已報到' ? '#16A34A' :
+  '#333333';
+
         card.appendChild(row);
       }
 
