@@ -398,18 +398,41 @@ controlButton.addEventListener('click', async () => {
 
 card.appendChild(controlButton);
 
-      for (const employee of session.employees) {
-        const row = document.createElement('p');
-        row.textContent = employee.employeeName +
-          ' — ' + employee.status;
-        
-row.style.color =
-  employee.status === '未報到' ? '#DC2626' :
-  employee.status === '已報到' ? '#16A34A' :
-  '#333333';
+      
+const checkedIn = session.employees.filter(
+  employee => employee.status === '已報到'
+);
 
-        card.appendChild(row);
-      }
+const notCheckedIn = session.employees.filter(
+  employee => employee.status === '未報到'
+);
+
+function addEmployeeGroup(title, employees, color) {
+  const heading = document.createElement('h4');
+  heading.textContent = title + '（' + employees.length + '人）';
+  heading.style.color = color;
+  heading.style.marginBottom = '8px';
+  card.appendChild(heading);
+
+  if (employees.length === 0) {
+    const empty = document.createElement('p');
+    empty.textContent = '無';
+    card.appendChild(empty);
+    return;
+  }
+
+  for (const employee of employees) {
+    const row = document.createElement('p');
+    row.textContent = employee.employeeName;
+    row.style.color = color;
+    row.style.margin = '6px 0';
+    card.appendChild(row);
+  }
+}
+
+addEmployeeGroup('已報到名單', checkedIn, '#16A34A');
+addEmployeeGroup('未報到名單', notCheckedIn, '#DC2626');
+
 
       list.appendChild(card);
     }
